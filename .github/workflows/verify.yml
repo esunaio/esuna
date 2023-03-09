@@ -34,15 +34,14 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: nrwl/nx-set-shas@v2
+      - uses: nrwl/nx-set-shas@v3
       - run: |
           echo "BASE: ${{ env.NX_BASE }}"
           echo "HEAD: ${{ env.NX_HEAD }}"
-      - run: yarn
       - name: Bootstrap environment
         uses: ./.github/actions/bootstrap-environment
       - name: Verify code
-        uses: JamesHenry/parallel-bash-commands@v0.1
+        uses: JamesHenry/parallel-bash-commands@v1
         with:
           cmd1: yarn nx affected --target=test
           cmd2: yarn nx affected --target=lint
