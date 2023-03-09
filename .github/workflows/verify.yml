@@ -41,7 +41,7 @@ jobs:
       - name: Bootstrap environment
         uses: ./.github/actions/bootstrap-environment
       - name: Verify code
-        uses: JamesHenry/parallel-bash-commands@v0.1
+        uses: JamesHenry/parallel-bash-commands@v1
         with:
           cmd1: yarn nx affected --target=test
           cmd2: yarn nx affected --target=lint
