@@ -38,7 +38,6 @@ jobs:
       - run: |
           echo "BASE: ${{ env.NX_BASE }}"
           echo "HEAD: ${{ env.NX_HEAD }}"
-      - run: yarn
       - name: Bootstrap environment
         uses: ./.github/actions/bootstrap-environment
       - name: Verify code
