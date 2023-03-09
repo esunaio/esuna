@@ -1,0 +1,52 @@
+name: Verify
+
+concurrency:
+  group: ${{ github.ref_name }}
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
+  NX_BRANCH: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  agents:
+    name: Nx Cloud Agents
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        agent: [1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Bootstrap environment
+        uses: ./.github/actions/bootstrap-environment
+      - name: Start Nx Agent ${{ matrix.agent }}
+        run: yarn nx-cloud start-agent
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v2
+      - run: |
+          echo "BASE: ${{ env.NX_BASE }}"
+          echo "HEAD: ${{ env.NX_HEAD }}"
+      - run: yarn
+      - name: Bootstrap environment
+        uses: ./.github/actions/bootstrap-environment
+      - name: Verify code
+        uses: JamesHenry/parallel-bash-commands@v0.1
+        with:
+          cmd1: yarn nx affected --target=test
+          cmd2: yarn nx affected --target=lint
+          cmd3: yarn nx affected --target=e2e
+      - name: Stop all running agents for this CI run
+        if: always()
+        run: yarn nx-cloud stop-all-agents

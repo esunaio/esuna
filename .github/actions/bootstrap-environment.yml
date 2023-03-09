@@ -1,0 +1,20 @@
+name: Setup environment
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        registry-url: 'https://npm.pkg.github.com'
+        node-version-file: .nvmrc
+        cache: yarn
+    - name: Save Cypress
+      uses: actions/cache@v3
+      id: cypress-cache
+      with:
+        path: ~/.cache/Cypress
+        key: ${{ runner.os }}-cypress-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cypress-${{ hashFiles('yarn.lock') }}
+    - name: Install dependencies
+      shell: bash
+      run: yarn
